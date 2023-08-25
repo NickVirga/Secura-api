@@ -13,40 +13,32 @@ app.use(
 app.use(express.json());
 
 const openai = new OpenAI({
-    organization: "org-sOGHH8iC9iqsGla6JTxx8EbT",
-    apiKey: process.env.OPEN_AI_KEY,
-  });
-
-// POST request endpoint
-app.post("/ask", async (req, res) => {
-    console.log(req.body)
-  const prompt = req.body.prompt;
-  try {
-    if (prompt == null) {
-      throw new Error("Uh oh, no prompt was provided");
-    }
-    const response = await openai.completions.create({
-      model: "text-davinci-003",
-      prompt,
-    });
-    const completion = response.data.choices[0].text;
-    return res.status(200).json({
-      success: true,
-      message: completion,
-    });
-  } catch (error) {
-    console.log(error.message);
-  }
+  // organization: "org-sOGHH8iC9iqsGla6JTxx8EbT",
+  apiKey: process.env.OPEN_AI_KEY,
 });
 
 
-// const response = await openai.listEngines().then(console.log(response));
-
-// const inventoriesRoutes = require('./routes/inventories');
-// const warehousesRoutes = require('./routes/warehouses');
-
-// app.use("/api/warehouses", warehousesRoutes)
-// app.use("/api/inventories" ,inventoriesRoutes);
+// POST request endpoint
+app.post("/ask", async (req, res) => {
+  const prompt = req.body.prompt;
+  try {
+    if (prompt == null) {
+      throw new Error("No prompt was provided");
+    }
+    const completion = await openai.completions.create({
+      model: "text-davinci-003",
+      prompt: prompt,
+      max_tokens: 30,
+    });
+    const response = completion.choices[0].text;
+    return res.status(200).json({
+      success: true,
+      message: response,
+    });
+  } catch (error) {
+    console.log("Error: ", error.message);
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
